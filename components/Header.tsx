@@ -39,9 +39,6 @@ const Header: React.FC<HeaderProps> = ({ date, onDateChange }) => {
                 />
               </div>
             </div>
-            <div className="hidden lg:block h-12 w-12 rounded-full border-4 border-slate-100 overflow-hidden">
-                <img src="https://picsum.photos/id/64/100/100" alt="Logo" className="w-full h-full object-cover grayscale" />
-            </div>
           </div>
         </div>
       </div>
