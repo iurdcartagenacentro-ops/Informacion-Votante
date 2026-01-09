@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
 import { X, CheckCircle2, AlertCircle } from 'lucide-react';
-import { Voter } from '../types.ts';
-import SignaturePad from './SignaturePad.tsx';
+import { Voter } from '../types';
+import SignaturePad from './SignaturePad';
 
 interface VoterFormProps {
   onSubmit: (voter: Omit<Voter, 'id'>) => void;

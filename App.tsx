@@ -1,12 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, Download, Share2, Search, FileText } from 'lucide-react';
-import { Voter, AppState } from './types.ts';
-import Header from './components/Header.tsx';
-import VoterForm from './components/VoterForm.tsx';
-import VoterTable from './components/VoterTable.tsx';
-import Toast from './components/Toast.tsx';
-import { downloadCSV } from './services/exportService.ts';
+import { Voter, AppState } from './types';
+import Header from './components/Header';
+import VoterForm from './components/VoterForm';
+import VoterTable from './components/VoterTable';
+import Toast from './components/Toast';
+import { downloadCSV } from './services/exportService';
 
 const App: React.FC = () => {
   const [state, setState] = useState<AppState>(() => {
@@ -14,7 +14,6 @@ const App: React.FC = () => {
       const saved = localStorage.getItem('voter_registry_data');
       if (saved) {
         const parsed = JSON.parse(saved);
-        // Verificación de seguridad: asegurar que parsed es un objeto y no es null
         if (parsed && typeof parsed === 'object') {
           return {
             date: parsed.date || new Date().toISOString().split('T')[0],
@@ -23,7 +22,7 @@ const App: React.FC = () => {
         }
       }
     } catch (e) {
-      console.error("Error crítico al cargar datos locales, reiniciando planilla...", e);
+      console.error("Error al cargar datos locales:", e);
     }
     return {
       date: new Date().toISOString().split('T')[0],
@@ -39,7 +38,7 @@ const App: React.FC = () => {
     try {
       localStorage.setItem('voter_registry_data', JSON.stringify(state));
     } catch (e) {
-      console.error("No se pudieron guardar los datos en localStorage", e);
+      console.warn("No se pudo guardar en el almacenamiento local:", e);
     }
   }, [state]);
 
@@ -53,13 +52,10 @@ const App: React.FC = () => {
 
   const addVoter = (voter: Omit<Voter, 'id'>) => {
     const newVoter = { ...voter, id: generateId() };
-    setState(prev => {
-      const updatedVoters = [newVoter, ...prev.voters];
-      return {
-        ...prev,
-        voters: updatedVoters
-      };
-    });
+    setState(prev => ({
+      ...prev,
+      voters: [newVoter, ...prev.voters]
+    }));
     setIsAdding(false);
     showToast('¡Votante añadido a la planilla!');
   };
