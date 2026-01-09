@@ -22,7 +22,7 @@ const App: React.FC = () => {
         }
       }
     } catch (e) {
-      console.error("Error al cargar datos locales:", e);
+      console.error("Fallo al recuperar datos de localStorage:", e);
     }
     return {
       date: new Date().toISOString().split('T')[0],
@@ -38,7 +38,7 @@ const App: React.FC = () => {
     try {
       localStorage.setItem('voter_registry_data', JSON.stringify(state));
     } catch (e) {
-      console.warn("No se pudo guardar en el almacenamiento local:", e);
+      console.warn("No se pudo persistir en localStorage:", e);
     }
   }, [state]);
 
@@ -57,11 +57,11 @@ const App: React.FC = () => {
       voters: [newVoter, ...prev.voters]
     }));
     setIsAdding(false);
-    showToast('¡Votante añadido a la planilla!');
+    showToast('¡Votante añadido!');
   };
 
   const removeVoter = (id: string) => {
-    if (confirm('¿Eliminar este registro de la planilla?')) {
+    if (confirm('¿Eliminar este registro?')) {
       setState(prev => ({
         ...prev,
         voters: prev.voters.filter(v => v.id !== id)
@@ -72,11 +72,11 @@ const App: React.FC = () => {
 
   const handleExportCSV = () => {
     if (state.voters.length === 0) {
-      alert('La planilla está vacía.');
+      alert('No hay datos para exportar.');
       return;
     }
     downloadCSV(state.voters, state.date);
-    showToast('Archivo Excel/CSV generado.');
+    showToast('Excel/CSV generado.');
   };
 
   const filteredVoters = state.voters.filter(v => 
@@ -91,19 +91,21 @@ const App: React.FC = () => {
       </div>
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+        {/* Cabecera para Impresión */}
         <div className="hidden print:block text-center mb-8 border-b-2 border-slate-900 pb-4">
           <h1 className="text-2xl font-black uppercase tracking-tight">Consejo Comunitario Cuenca Río Ovejas</h1>
-          <h2 className="text-xl font-bold text-slate-700">Planilla de Registro de Votantes - 2026</h2>
-          <p className="text-sm mt-2">Fecha de Reporte: {state.date}</p>
+          <h2 className="text-xl font-bold text-slate-700 uppercase">Planilla de Registro de Votantes 2026</h2>
+          <p className="text-sm mt-2 font-mono">Reporte generado el: {state.date}</p>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden print:border-none print:shadow-none">
+          {/* Controles Web */}
           <div className="p-4 sm:p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col lg:flex-row lg:items-center justify-between gap-4 no-print">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
               <input 
                 type="text"
-                placeholder="Buscar en planilla..."
+                placeholder="Buscar por nombre o cédula..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 transition-all outline-none text-sm"
@@ -116,7 +118,7 @@ const App: React.FC = () => {
                 className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-md active:scale-95"
               >
                 <Plus className="w-5 h-5" />
-                <span>Agregar a Planilla</span>
+                <span>Agregar Votante</span>
               </button>
               
               <button 
@@ -137,18 +139,19 @@ const App: React.FC = () => {
                 <div className="bg-slate-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
                   <FileText className="w-12 h-12 text-slate-300" />
                 </div>
-                <h3 className="text-2xl font-black text-slate-900 uppercase">Planilla Vacía</h3>
-                <p className="text-slate-500 mt-2 max-w-xs mx-auto text-sm">Empieza a registrar los ciudadanos para generar la planilla de votación.</p>
+                <h3 className="text-2xl font-black text-slate-900 uppercase">Sin Registros</h3>
+                <p className="text-slate-500 mt-2 max-w-xs mx-auto text-sm italic">Haga clic en el botón azul para iniciar la planilla.</p>
               </div>
             )}
           </div>
         </div>
 
+        {/* Aviso Legal */}
         <div className="mt-8 p-6 bg-white border-2 border-slate-200 rounded-xl text-[11px] text-slate-500 leading-relaxed flex items-start gap-4 shadow-sm print:bg-transparent print:border-slate-300">
            <Share2 className="w-8 h-8 text-blue-500 shrink-0 opacity-40 no-print" />
            <div>
              <p className="font-black text-slate-800 mb-1 uppercase tracking-wider">Aviso de Privacidad y Gestión de Datos:</p>
-             Este documento contiene información sensible protegida por la Ley 1581 de 2012. El uso de esta planilla es exclusivo para el Consejo Comunitario Cuenca Río Ovejas. Los datos se almacenan localmente en este dispositivo para mayor seguridad. Use el botón **Excel/CSV** para generar el reporte oficial.
+             Este documento contiene información sensible protegida por la Ley 1581 de 2012. El uso de esta planilla es exclusivo para el Consejo Comunitario Cuenca Río Ovejas. Los datos se almacenan localmente para mayor seguridad.
            </div>
         </div>
       </main>
