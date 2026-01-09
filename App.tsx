@@ -1,26 +1,29 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, Download, Share2, Search, FileText } from 'lucide-react';
-import { Voter, AppState } from './types';
-import Header from './components/Header';
-import VoterForm from './components/VoterForm';
-import VoterTable from './components/VoterTable';
-import Toast from './components/Toast';
-import { downloadCSV } from './services/exportService';
+import { Voter, AppState } from './types.ts';
+import Header from './components/Header.tsx';
+import VoterForm from './components/VoterForm.tsx';
+import VoterTable from './components/VoterTable.tsx';
+import Toast from './components/Toast.tsx';
+import { downloadCSV } from './services/exportService.ts';
 
 const App: React.FC = () => {
   const [state, setState] = useState<AppState>(() => {
-    const saved = localStorage.getItem('voter_registry_data');
-    if (saved) {
-      try {
+    try {
+      const saved = localStorage.getItem('voter_registry_data');
+      if (saved) {
         const parsed = JSON.parse(saved);
-        return {
-          ...parsed,
-          voters: parsed.voters || []
-        };
-      } catch (e) {
-        console.error("Error al cargar datos locales", e);
+        // Verificación de seguridad: asegurar que parsed es un objeto y no es null
+        if (parsed && typeof parsed === 'object') {
+          return {
+            date: parsed.date || new Date().toISOString().split('T')[0],
+            voters: Array.isArray(parsed.voters) ? parsed.voters : []
+          };
+        }
       }
+    } catch (e) {
+      console.error("Error crítico al cargar datos locales, reiniciando planilla...", e);
     }
     return {
       date: new Date().toISOString().split('T')[0],
@@ -33,7 +36,11 @@ const App: React.FC = () => {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' } | null>(null);
 
   useEffect(() => {
-    localStorage.setItem('voter_registry_data', JSON.stringify(state));
+    try {
+      localStorage.setItem('voter_registry_data', JSON.stringify(state));
+    } catch (e) {
+      console.error("No se pudieron guardar los datos en localStorage", e);
+    }
   }, [state]);
 
   const showToast = (message: string, type: 'success' | 'info' = 'success') => {
@@ -88,7 +95,6 @@ const App: React.FC = () => {
       </div>
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-        {/* Cabecera de la Planilla en Impresión */}
         <div className="hidden print:block text-center mb-8 border-b-2 border-slate-900 pb-4">
           <h1 className="text-2xl font-black uppercase tracking-tight">Consejo Comunitario Cuenca Río Ovejas</h1>
           <h2 className="text-xl font-bold text-slate-700">Planilla de Registro de Votantes - 2026</h2>
@@ -96,7 +102,6 @@ const App: React.FC = () => {
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden print:border-none print:shadow-none">
-          {/* Barra de Acciones Superior */}
           <div className="p-4 sm:p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col lg:flex-row lg:items-center justify-between gap-4 no-print">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
@@ -143,7 +148,6 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Pie de página con aviso legal */}
         <div className="mt-8 p-6 bg-white border-2 border-slate-200 rounded-xl text-[11px] text-slate-500 leading-relaxed flex items-start gap-4 shadow-sm print:bg-transparent print:border-slate-300">
            <Share2 className="w-8 h-8 text-blue-500 shrink-0 opacity-40 no-print" />
            <div>
